@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="8.2.000">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="8.2.000" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="read_excel" compatibility="8.2.000" expanded="true" height="68" name="Read Excel" width="90" x="112" y="136">
+        <parameter key="excel_file" value="D:\work\docs\City of Aspen Appendix E.xlsx"/>
+        <parameter key="sheet_selection" value="sheet number"/>
+        <parameter key="sheet_number" value="1"/>
+        <parameter key="imported_cell_range" value="A1"/>
+        <parameter key="encoding" value="SYSTEM"/>
+        <parameter key="first_row_as_names" value="true"/>
+        <list key="annotations"/>
+        <parameter key="date_format" value=""/>
+        <parameter key="time_zone" value="SYSTEM"/>
+        <parameter key="locale" value="English (United States)"/>
+        <parameter key="read_all_values_as_polynominal" value="false"/>
+        <list key="data_set_meta_data_information"/>
+        <parameter key="read_not_matching_values_as_missings" value="true"/>
+        <parameter key="datamanagement" value="double_array"/>
+        <parameter key="data_management" value="auto"/>
+      </operator>
+      <operator activated="true" class="python_scripting:execute_python" compatibility="7.4.000" expanded="true" height="82" name="Execute Python" width="90" x="313" y="136">
+        <parameter key="script" value="import pandas&#10;import nltk&#10;import math&#10;import os&#10;import parser&#10;import numpy as np&#10;&#10;from nltk import pos_tag&#10;from nltk.corpus import stopwords&#10;from nltk import sent_tokenize, word_tokenize&#10;&#10;from nltk.internals import find_jars_within_path&#10;from nltk.parse.stanford import StanfordParser&#10;from nltk.parse.stanford import StanfordDependencyParser&#10;from nltk.tag import StanfordPOSTagger&#10;from nltk.tag import StanfordNERTagger&#10;&#10;# rm_main is a mandatory function, &#10;# the number of arguments has to be the number of input ports (can be none)&#10;&#10;def rm_main(data):&#10;&#10;    os.environ['CLASSPATH'] = &quot;C:\stanford\stanford-ner-2015-04-20\stanford-ner-2015-04-20\stanford-ner.jar;C:\stanford\stanford-parser-full-2015-04-20\stanford-parser.jar;C:\stanford\stanford-postagger-full-2015-04-20\stanford-postagger.jar;C:\stanford\stanford-parser-full-2015-04-20\stanford-parser-3.5.2-models.jar;C:\stanford\stanford-parser-full-2015-04-20\stanford-parser-3.5.2-javadoc.jar;C:\stanford\stanford-parser-full-2015-04-20\stanford-parser-3.5.2-sources.jar;C:\stanford\stanford-corenlp-full-2018-02-27\stanford-corenlp-3.9.1.jar;C:\stanford\stanford-corenlp-full-2018-02-27\stanford-corenlp-3.9.1-models.jar&quot;&#10;    os.environ['STANFORD_MODELS'] = &quot;C:\stanford\stanford-ner-2015-04-20\stanford-ner-2015-04-20\classifiers;C:\stanford\stanford-postagger-full-2015-04-20\models\english-left3words-distsim.tagger&quot;&#10;    os.environ['JAVAHOME'] = &quot;C:\\Program Files\\Java\\jdk1.8.0_102\\bin\\java.exe&quot;&#10;&#10;    st = StanfordPOSTagger('C:\stanford\stanford-postagger-full-2015-04-20\models\english-bidirectional-distsim.tagger')  #StanfordPOSTagger&#10;    stanford_dir = st._stanford_jar[0].rpartition('/')[0]    &#10;    stanford_jars = find_jars_within_path(stanford_dir)&#10;    &#10;    dep_parser = StanfordParser() #StanfordParser&#10;    &#10;    dataFrames = []    &#10;    sentencesList = data.values.tolist()&#10;    stop_words = set(stopwords.words('english')) &#10;&#10;    for i in range(0,len(sentencesList)):&#10;        j = sentencesList[i][2]        &#10;        walktagged = st.tag(j.split())        &#10;        sentences = dep_parser.raw_parse(j)                    &#10;            &#10;# GUI to draw parse tree&#10;        for line in sentences:            &#10;            for sentence in line:                &#10;                sentence.draw()&#10;&#10;        dataFrames.append(walktagged)&#10;&#10;    data1 = pandas.DataFrame(dataFrames)   &#10;&#10;    return  data1&#10;&#10;&#10;       "/>
+      </operator>
+      <connect from_op="Read Excel" from_port="output" to_op="Execute Python" to_port="input 1"/>
+      <connect from_op="Execute Python" from_port="output 1" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>
